@@ -19,8 +19,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   stack = "copynews"
   config.vm.define(stack) do |node|
-    node.vm.box = "trusty64" # ubuntu 12.04 LTS
-    node.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+    #node.vm.box = "trusty64" # ubuntu 12.04 LTS
+    #node.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+    node.vm.box = "precise64"
+    node.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box"
     node.vm.network :private_network, ip: "10.0.30.10"
   end
 end

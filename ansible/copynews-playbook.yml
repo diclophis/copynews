@@ -1,12 +1,6 @@
 ---
 - hosts: all
   tasks:
-    - name: install virtualbox system packages
-      apt: pkg={{ item }} state=latest
-      sudo: true
-      with_items:
-        - virtualbox-guest-utils
-      when: inventory_hostname in groups['virtualbox']
 
     - name: bootstrap ansible packages with existing apt state
       sudo: true
@@ -26,6 +20,10 @@
     - name: ensure the docker apt repository is added
       sudo: true
       apt_repository: state=present repo='deb https://get.docker.io/ubuntu docker main'
+
+    - name: install inn2 inn.conf
+      sudo: true
+      shell: mkdir -p /etc/news
 
     - name: install inn2 inn.conf
       sudo: true
@@ -82,6 +80,13 @@
         # - libapr1
         # - libaprutil1
 
+    - name: install virtualbox system packages
+      apt: pkg={{ item }} state=latest
+      sudo: true
+      with_items:
+        - virtualbox-guest-utils
+      when: inventory_hostname in groups['virtualbox']
+
     - name: remove un-needed packages
       apt: pkg={{ item }} state=absent
       sudo: true
@@ -103,6 +108,9 @@
         - chef
         - puppet
         - puppet-common
+        #- apparmor
+        #- libapparmor1
+        #- libapparmor-perl
 
     - name: install dkill alias
       lineinfile: dest=~/.bashrc state=present line="alias dkill=\"sudo docker kill \$(sudo docker ps | grep -v CONTAINER | awk '{ print \$1 }')\""
@@ -155,9 +163,11 @@
       shell: "{{ item }}"
       ignore_errors: true
       with_items:
-        - stop rsyslog
-        - stop postfix
-        - stop inn2
+        - /etc/init.d/rsyslog stop
+        - /etc/init.d/postfix stop
+        - /etc/init.d/inn2 stop
+        - stop cron
+        - stop atd
         - test -e /proc/sys/kernel/yama/protected_nonaccess_hardlinks && echo 0 > /proc/sys/kernel/yama/protected_nonaccess_hardlinks
         - rm -f /etc/init.d/ondemand
         - rm -f /etc/rc2.d/S99ondemand
@@ -187,9 +197,30 @@
           --exclude=/boot
           --exclude=/mnt
           --exclude=/srv
+          --exclude=/etc/rc3.d/S20virtualbox-guest-utils
+          --exclude=/etc/rc3.d/S23ntp
+          --exclude=/etc/rc3.d/S30vboxadd
+          --exclude=/etc/rc3.d/S30vboxadd-x11
+          --exclude=/etc/rc3.d/S35vboxadd-service
+          --exclude=/etc/rc3.d/S50rsync
+          --exclude=/etc/rc3.d/S70dns-clean
+          --exclude=/etc/rc3.d/S70pppd-dns
+          --exclude=/etc/rc3.d/S75sudo
+          --exclude=/etc/rc3.d/S99grub-common
+          --exclude=/etc/rc3.d/S99ondemand
+          --exclude=/etc/rc3.d/S99rc.local
+          --exclude=/etc/rc0.d
+          --exclude=/etc/rc1.d
+          --exclude=/etc/rc2.d
+          --exclude=/etc/rc4.d
+          --exclude=/etc/rc5.d
+          --exclude=/etc/rc6.d
+          --exclude=/etc/rc.local
+          --exclude=/etc/rcS.d
+          --exclude=/home/{{ ansible_ssh_user }}/postinstall.sh
           -cf precise.tar /
         - cat precise.tar | docker import - precise
-        - docker run --detach=true -p 4443:443 -p 8080:80 -p 4406:3306 -p 4407:3307 -p 2222:22 precise /sbin/init --confdir=/etc/docker_init --startup-event=filesystem
+        - docker run --detach=true -p 4443:443 -p 8080:80 -p 4406:3306 -p 4407:3307 -p 2222:22 precise /sbin/init --confdir=/etc/docker_init --startup-event=filesystem --no-dbus --verbose
 
           #--exclude=/run
           #--exclude=/var/run
