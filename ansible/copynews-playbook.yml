@@ -130,11 +130,34 @@
       sudo: true
       service: name=inn2 state=stopped enabled=true
 
+    - name: unset immutable attribute for etc/hostname file to allow modification
+      sudo: true
+      shell: chattr -i /etc/hostname
+
+    - name: setup hostname according to inventory
+      sudo: true
+      hostname: name={{ inventory_hostname }}
+
+    - name: set etc/host for hostname
+      sudo: true
+      lineinfile: dest=/etc/hosts line="127.0.0.1 {{ inventory_hostname }}"
+
+    - name: set immutable attribute for etc/hostname file to prevent modification
+      sudo: true
+      shell: chattr +i /etc/hostname
+
+    - name: install inittab for runlevel control
+      sudo: true
+      copy: src=files/inittab dest=/etc/inittab mode=644
+
     - name: bootstrap docker image
       sudo: true
       shell: "{{ item }}"
       ignore_errors: true
       with_items:
+        - stop rsyslog
+        - stop postfix
+        - stop inn2
         - test -e /proc/sys/kernel/yama/protected_nonaccess_hardlinks && echo 0 > /proc/sys/kernel/yama/protected_nonaccess_hardlinks
         - rm -f /etc/init.d/ondemand
         - rm -f /etc/rc2.d/S99ondemand
@@ -151,8 +174,6 @@
           --exclude=/initrd.img.old
           --exclude=/lost+found
           --exclude=/media
-          --exclude=/mnt
-          --exclude=/srv
           --exclude=/vmlinuz
           --exclude=/vmlinuz.old
           --exclude=/vagrant
@@ -161,10 +182,14 @@
           --exclude=/dev
           --exclude=/etc/init
           --exclude=/usr/src
+          --exclude=/var
           --exclude=/run
-          --exclude=/var/run
-          --exclude=/var/lib/docker
           --exclude=/boot
+          --exclude=/mnt
+          --exclude=/srv
           -cf precise.tar /
         - cat precise.tar | docker import - precise
         - docker run --detach=true -p 4443:443 -p 8080:80 -p 4406:3306 -p 4407:3307 -p 2222:22 precise /sbin/init --confdir=/etc/docker_init --startup-event=filesystem
+
+          #--exclude=/run
+          #--exclude=/var/run
