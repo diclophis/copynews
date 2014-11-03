@@ -25,6 +25,10 @@
       apt_repository: repo='deb https://dl.flynn.io/ubuntu flynn main' state=present
       register: flynn_repo
 
+    - name: install rsyslog.conf
+      sudo: true
+      copy: src=files/rsyslog/rsyslog.conf dest=/etc/rsyslog.conf
+
     - name: install inn2 /etc/news dir
       sudo: true
       shell: creates=/etc/news mkdir -p /etc/news
@@ -32,6 +36,10 @@
     - name: install inn2 inn.conf
       sudo: true
       copy: src=files/inn2/inn.conf dest=/etc/news/inn.conf
+
+    - name: install inn2 newsfeeds
+      sudo: true
+      copy: src=files/inn2/newsfeeds dest=/etc/news/newsfeeds
 
     - name: update and safe upgrade apt-get packages
       sudo: true
@@ -55,6 +63,7 @@
         - mailutils
         - inn2
         - rsyslog
+        - slrn
         # - update-manager-core
         # - update-notifier-common
         # - build-essential
