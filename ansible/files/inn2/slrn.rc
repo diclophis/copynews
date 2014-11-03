@@ -1,0 +1,6 @@
+% http://slrn.sourceforge.net/docs/slrn-manual-5.html#posting_host
+% wtf
+% NNTPSERVER=localhost slrn -f /home/vagrant/.jnewsrc --create
+set hostname localhost.localdomain
+% posting_host local.localhost.localdomain
+set generate_message_id 0

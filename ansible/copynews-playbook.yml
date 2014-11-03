@@ -1,6 +1,7 @@
 ---
 - hosts: all
   tasks:
+    #TODO: copynews user
     - name: bootstrap ansible packages with existing apt state
       sudo: true
       apt: pkg={{ item }} state=present
@@ -41,9 +42,13 @@
       sudo: true
       copy: src=files/inn2/newsfeeds dest=/etc/news/newsfeeds
 
+    - name: install slrn.rc
+      sudo: true
+      copy: src=files/inn2/slrn.rc dest=/etc/news/slrn.rc
+
     - name: update and safe upgrade apt-get packages
       sudo: true
-      apt: update_cache=true cache_valid_time=900 upgrade=safe
+      apt: update_cache=true cache_valid_time=3600 upgrade=safe
 
     - name: install main system packages
       apt: pkg={{ item }} state=present
