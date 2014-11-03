@@ -1,12 +1,12 @@
 # COPYNEWS
 
-Usenet protocol, distributed, eventually consistent article store docker application
+Static Blogging application built on Usenet protocol, as a distributed, eventually consistent article store running in a docker container
 
 /var/spool docker volume, shared amongst clusters
 
-Static Blogging Software Interfaced Into NNTP Database
-  Default Reader Application ala tilde.club, in perl? yes.
-  Custom Procfile Application Deployment
+* Interfaced Into NNTP Database
+	* Default Reader Application ala tilde.club, in perl? yes.
+	* Custom Procfile Application Deployment
 
 ## Article Types
   
@@ -17,7 +17,7 @@ Static Blogging Software Interfaced Into NNTP Database
 
 ## Article Heierarchy
 
-  http://en.wikipedia.org/wiki/Big_8_%28Usenet%29
+As an example: [Usenet Group Convention](http://en.wikipedia.org/wiki/Big_8_%28Usenet%29)
 
   * com.risingcode
     permanent redirect to https://www.risingcode.com/
@@ -29,7 +29,7 @@ Static Blogging Software Interfaced Into NNTP Database
   * com.risingcode.www.news
   * com.risingode.www.alt
 
-  Articles can exist in multiple channels, via http://en.wikipedia.org/wiki/Crossposting
+Articles can exist in multiple channels, via [Crossposting](http://en.wikipedia.org/wiki/Crossposting)
 
 ## Article REST API
 

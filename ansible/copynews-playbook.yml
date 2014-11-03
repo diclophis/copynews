@@ -1,17 +1,12 @@
 ---
 - hosts: all
   tasks:
-
     - name: bootstrap ansible packages with existing apt state
       sudo: true
       apt: pkg={{ item }} state=present
       with_items:
         - aptitude
         - apt-transport-https
-
-    #- name: install sources.list
-    #  sudo: true
-    #  copy: src={{ ansible_distribution_release }}.sources.list dest=/etc/apt/sources.list
 
     - name: install docker GPG key
       sudo: true
@@ -21,9 +16,18 @@
       sudo: true
       apt_repository: state=present repo='deb https://get.docker.io/ubuntu docker main'
 
-    - name: install inn2 inn.conf
+    - name: Retrieve flynn repository signing key
       sudo: true
-      shell: mkdir -p /etc/news
+      shell: apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv BC79739C507A9B53BB1B0E7D820A5489998D827B
+
+    - name: Add flynn apt repository to sources list
+      sudo: true
+      apt_repository: repo='deb https://dl.flynn.io/ubuntu flynn main' state=present
+      register: flynn_repo
+
+    - name: install inn2 /etc/news dir
+      sudo: true
+      shell: creates=/etc/news mkdir -p /etc/news
 
     - name: install inn2 inn.conf
       sudo: true
@@ -108,7 +112,48 @@
         - chef
         - puppet
         - puppet-common
-        #- apparmor
+        - libgl1-mesa-dri
+        - libllvm3.0
+        - language-pack-gnome-en
+        - language-pack-gnome-en-base
+        - xfonts-base
+        - linux-firmware
+        - linux-image-generic
+        - linux-image-server
+        - linux-server
+        - memtest86+
+        - ubuntu-standard
+        - virtualbox-guest-x11
+        - xserver-xorg-core
+        - libxfixes3
+        - libxcomposite1
+        - x11-xkb-utils
+        - libxfont1
+        - libpixman-1-0
+        - libxaw7
+        - libice6
+        - libxmu6
+        - libxpm4
+        - libxrender1
+        - libfontenc1
+        - x11-common
+        - libsm6
+        - libxdamage1
+        - libxt6
+        - libxrandr2
+        - libxkbfile1
+        #NOTE: does not reboot!
+        #- libfreetype6
+        #- libx11-6
+        #- libxext6
+        #- libxmuu1
+        #- xauth
+        #- grub-common #NOTE: caution!!
+        #- grub-gfxpayload-lists
+        #- grub-pc
+        #- grub-pc-bin
+        #- grub2-common
+        #- apparmor #NOTE: has issues on ubuntu 14.x
         #- libapparmor1
         #- libapparmor-perl
 
@@ -221,6 +266,3 @@
           -cf precise.tar /
         - cat precise.tar | docker import - precise
         - docker run --detach=true -p 4443:443 -p 8080:80 -p 4406:3306 -p 4407:3307 -p 2222:22 precise /sbin/init --confdir=/etc/docker_init --startup-event=filesystem --no-dbus --verbose
-
-          #--exclude=/run
-          #--exclude=/var/run
