@@ -265,4 +265,4 @@
           --exclude=/home/{{ ansible_ssh_user }}/postinstall.sh
           -cf precise.tar /
         - cat precise.tar | docker import - precise
-        - docker run --detach=true -p 4443:443 -p 8080:80 -p 4406:3306 -p 4407:3307 -p 2222:22 precise /sbin/init --confdir=/etc/docker_init --startup-event=filesystem --no-dbus --verbose
+        - docker run --detach=true -p 4443:443 -p 8080:80 -p 4406:3306 -p 4407:3307 -p 2222:22 -p 9119:119 precise /sbin/init --confdir=/etc/docker_init --startup-event=filesystem --no-dbus --verbose
